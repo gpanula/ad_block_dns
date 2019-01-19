@@ -1,0 +1,21 @@
+; this is the wildcard domain for malware
+; the proxy server is configured to denied access to 198.18.2.0/24
+; and present a simple "hi there. have a nice day" message.
+;
+; replace bind.dev.null with the fqdn of your dns
+; OR just return the non-existant(nxdomain) domain
+; nxdomain works waaay better than a non-reachable address
+; non-reachable address just causes the ad loading scripts to spin
+$TTL 3600	; 1 hour
+@	IN SOA	master.dev.null. hostmaster.dev.null. (
+		2014082901	; serial (YYYYMMDD##)
+		900		; refresh (15 minutes)
+		600		; retry (10 minutes)
+		86400		; expire (1 day)
+		3600		; minimum (1 hour)
+		)
+
+	IN	NS	bind.dev.null.
+	IN	A	198.18.1.255
+;*	IN	A	198.18.1.255
+*	IN	CNAME	adblock.dev.null.

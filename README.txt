@@ -1,6 +1,3 @@
-# ad_block_dns
-ad and malware blocking dns
-
 grab_blocklist.sh should be put in /etc/cron.daily
 remove-addomains.pl goes in /usr/local/bin (that is were grab_blocklist.sh expects it)
 
@@ -35,3 +32,4 @@ Other things trying to reach 198.18.1.255 will failed because
 2) 198.18.0.0/15 is set aside for network benchmark test and should not be internet routable (rfc2544)
 
 enjoy
+

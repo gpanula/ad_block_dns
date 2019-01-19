@@ -149,7 +149,7 @@ fi
             # check if we are just downloading the domain lists
             if [ $justgrab -eq 0 ]
             then
-                mv "${DEST}/${ztype}_block.txt ${DEST}/${ztype}_block.txt.$(date +%Y%m%d)"
+                mv "${DEST}/${ztype}_block.txt" "${DEST}/${ztype}_block.txt.$(date +%Y%m%d)"
             fi
         fi
         
@@ -309,7 +309,7 @@ fi
             then
                 # this just moves the current backup out of the way
                 # we do this in case the named reload fails, we can roll-back
-                mv "${DEST}/${ztype}_block.txt.$(date +%Y%m%d) ${DEST}/${ztype}_block.txt.old"
+                mv "${DEST}/${ztype}_block.txt.$(date +%Y%m%d)" "${DEST}/${ztype}_block.txt.old"
             fi
         else
             if [ -e "${DEST}/${ztype}_block.txt" ]
@@ -330,7 +330,7 @@ fi
                 # put the old block file back in place, if it isn't zero bytes
                 if [ -s "${DEST}/${ztype}_block.txt.$(date +%Y%m%d)" ]
                 then
-                    mv "${DEST}/${ztype}_block.txt.$(date +%Y%m%d) ${DEST}/${ztype}_block.txt"
+                    mv "${DEST}/${ztype}_block.txt.$(date +%Y%m%d)" "${DEST}/${ztype}_block.txt"
                 else
                     echo "!!!! ERROR !!!! OLD ${ztype}_block.txt is ZERO Bytes"
                 fi
@@ -376,7 +376,7 @@ then
                 if [ -e "${DEST}/${ztype}_block.txt.old" ]
                 then
                     rm -f "${DEST}/${ztype}_block.txt"
-                    mv "${DEST}/${ztype}_block.txt.old ${DEST}/${ztype}_block.txt"
+                    mv "${DEST}/${ztype}_block.txt.old" "${DEST}/${ztype}_block.txt"
                 fi
                 
         done } < /tmp/thelist.$$

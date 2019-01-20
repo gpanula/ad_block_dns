@@ -1,15 +1,17 @@
 #!/bin/sh
 
-########################################################
-### This script pulls down mutliple lists of domains ###
-### Then creates a bind zone file from the lists     ###
+###########################################################
+### This script pulls down mutliple lists of domains    ###
+### Then creates a bind zone file from the lists        ###
 ###
-### The idea is to block access to the domains by    ###
-### having them resolve to something bogus	     ###
-### that can easily be filtered                      ###
+### The idea is to block access to the domains by       ###
+### having them resolve to something bogus	            ###
+### that can easily be filtered                         ###
 ###
 ### you need to put remove-addomains.pl in /usr/local/bin
-########################################################
+###########################################################
+
+# hint: put this in /etc/cron.daily
 
 # let the other daily cron job to finish
 #sleep 900

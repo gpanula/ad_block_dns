@@ -64,6 +64,16 @@ else
     fi
 fi
 
+# if running in alpine, we'll assume it is a container
+OS="$( grep ^ID /etc/os-release | cut -d= -f2 )"
+
+if [ "${OS}" == "alpine" ]
+then
+  RELOAD_NAMED="kill -HUP $( ps ax | grep named | grep -v grep | awk '{ print $1 }' )"
+  STOP_NAMED="kill $( ps ax | grep named | grep -v grep | awk '{ print $1 }' )"
+  START_NAMED="/usr/sbin/named -4 -c /etc/named.conf -f -L /var/named/chroot/var/log/default.log -t /var/named/chroot"
+fi
+
 if [ $debug -gt 0 ]
 then
     echo "CHROOT is ${CHROOT}"

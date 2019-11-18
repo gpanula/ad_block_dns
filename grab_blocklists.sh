@@ -165,7 +165,7 @@ fi
             fi
         fi
         
-        dos2unix -q "/tmp/temp_${ztype}_file"
+        dos2unix "/tmp/temp_${ztype}_file"
         
 done } < /tmp/thelist.$$
 

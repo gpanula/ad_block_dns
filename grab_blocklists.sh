@@ -132,6 +132,14 @@ echo 'zeus,https://zeustracker.abuse.ch/blocklist.php?download=baddomains' >> /t
 echo 'zeus,https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist' >> /tmp/thelist.$$
 echo 'zeus,https://ransomwaretracker.abuse.ch/downloads/RW_DOMBL.txt' >> /tmp/thelist.$$
 echo 'malware2,http://www.malwaredomainlist.com/hostslist/hosts.txt' >> /tmp/thelist.$$
+# add lists from pi-hole
+# ref: https://github.com/pi-hole/pi-hole/blob/master/automated%20install/basic-install.sh#L1200
+# ref: https://github.com/pi-hole/pi-hole/wiki/Customising-sources-for-ad-lists
+echo 'stevenblack,https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts' >> /tmp/thelist.$$ 
+echo 'justdomains,https://mirror1.malwaredomains.com/files/justdomains' >> /tmp/thelist.$$
+echo 'justdomains,https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt' >> /tmp/thelist.$$
+echo 'justdomains,https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt' >> /tmp/thelist.$$
+echo 'justdomains,https://hosts-file.net/ad_servers.txt' >> /tmp/thelist.$$
 
 if [ $biglists -gt 0 ]
 then
@@ -194,6 +202,8 @@ grep -vf ${ALLOWED} /tmp/temp_ad_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefg
 grep -vf ${ALLOWED} /tmp/temp_malware_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v \# | awk '{ print $1 }' | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware.domains
 grep -vf ${ALLOWED} /tmp/temp_zeus_file | grep -v '#' | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v '^$' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/zeus.domains
 grep -vf ${ALLOWED} /tmp/temp_malware2_file | grep 127.0.0.1 | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v localhost | cut -d' ' -f3 | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware2.domains
+grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
+grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
 
 if [ $biglists -gt 0 ]
 then
@@ -264,7 +274,7 @@ fi
 /usr/local/bin/remove-addomains.pl
 
 #grep -vf /tmp/ad-domain-dupes.txt /tmp/ad.domains | sed 's/[ \t]*$//g' | sed 's/$/" { type master; notify no; check-names ignore; file "masters\/adserver.zone"; };/g' | sed 's/^/zone "/g' > ${DEST}/ad_block.txt
-cat /tmp/ad.domains | sed 's/[ \t]*$//g' | sed 's/$/" { type master; notify no; check-names ignore; file "masters\/adserver.zone"; };/g' | sed 's/^/zone "/g' > ${DEST}/ad_block.txt
+cat /tmp/ad.domains | sort -u | sed 's/[ \t]*$//g' | sed 's/$/" { type master; notify no; check-names ignore; file "masters\/adserver.zone"; };/g' | sed 's/^/zone "/g' > ${DEST}/ad_block.txt
 
 # build the malware list
 #cat /tmp/malware.domains | sed 's/[ \t]*$//g' | sed 's/$/" { type master; notify no; check-names ignore; file "masters\/malware.zone"; };/g' | sed 's/^/zone "/g' > ${DEST}/malware_block.txt

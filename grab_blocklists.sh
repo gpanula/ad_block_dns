@@ -198,12 +198,12 @@ then
     ls -rtl /tmp/temp*file
     # this removing any trailing dots sed 's/[\.]*$//'
 fi
-grep -vf ${ALLOWED} /tmp/temp_ad_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep ^zone | cut -d' ' -f2 | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' | awk ' !x[$0]++' > /tmp/ad.domains
+grep -vf ${ALLOWED} /tmp/temp_ad_file | grep -v \# | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep ^zone | cut -d' ' -f2 | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' | awk ' !x[$0]++' > /tmp/ad.domains
 grep -vf ${ALLOWED} /tmp/temp_malware_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v \# | awk '{ print $1 }' | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware.domains
 grep -vf ${ALLOWED} /tmp/temp_zeus_file | grep -v '#' | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v '^$' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/zeus.domains
 grep -vf ${ALLOWED} /tmp/temp_malware2_file | grep 127.0.0.1 | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v localhost | cut -d' ' -f3 | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware2.domains
-grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
-grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
+grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# | awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
+grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep -v \# | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
 
 if [ $biglists -gt 0 ]
 then

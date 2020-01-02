@@ -269,6 +269,7 @@ then
     rm -f /tmp/ad_domains_removed_from_malware.txt
 fi
 
+# dedupe the pihole domains
 cat /tmp/justdomains.domains /tmp/stevenblack.domains |  awk ' !x[$0]++' > /tmp/pihole_t.$$
 
 # truncate domains with more than four names/field
@@ -391,6 +392,11 @@ then
     rm -f /tmp/zeus-domain-dupes.txt
     rm -f /tmp/malware.$$
     rm -f /tmp/malware_t.$$
+    # remove temp pihole files
+    rm -f /tmp/pihole_t.$$
+    rm -f /tmp/pihole.$$
+    rm -f /tmp/shorten.domains
+    rm -f /tmp/ad_domains_t.$$
 fi
 
 

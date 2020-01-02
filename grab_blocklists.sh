@@ -202,8 +202,8 @@ grep -vf ${ALLOWED} /tmp/temp_ad_file | grep -v \# | sed y/ABCDEFGHIJKLMNOPQRSTU
 grep -vf ${ALLOWED} /tmp/temp_malware_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v \# | awk '{ print $1 }' | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware.domains
 grep -vf ${ALLOWED} /tmp/temp_zeus_file | grep -v '#' | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v '^$' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/zeus.domains
 grep -vf ${ALLOWED} /tmp/temp_malware2_file | grep 127.0.0.1 | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v localhost | cut -d' ' -f3 | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware2.domains
-grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# | awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
-grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep -v \# | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' >> /tmp/ad.domains
+grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/justdomains.domains
+grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep -v \# | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/stevenblack.domains
 
 if [ $biglists -gt 0 ]
 then
@@ -269,10 +269,22 @@ then
     rm -f /tmp/ad_domains_removed_from_malware.txt
 fi
 
+cat /tmp/justdomains.domains /tmp/stevenblack.domains |  awk ' !x[$0]++' > /tmp/pihole_t.$$
+
+# truncate domains with more than four names/field
+cat /tmp/pihole_t.$$ | sed 's/"//g' | awk -F . 'NF>4' | awk -F . '{ print $(NF-2),$(NF-1),$NF }' | sed 's/ /./g' | sed 's/^net\.//g' | sed 's/^com\.//g' | sed 's/^ssl\.//g' | sort -u | grep -v '[a-z]com$' > /tmp/shorten.domains
+grep -vf /tmp/shorten.domains /tmp/pihole_t.$$ > /tmp/pihole.$$
+cat /tmp/shorten.domains >> /tmp/pihole.$$
+
+# combine with ad domains and remove dupes
+cat /tmp/pihole.$$ /tmp/ad.domains > /tmp/ad_domains_t.$$
+awk ' !x[$0]++' /tmp/ad_domains_t.$$ > /tmp/ad.domains
+
 # remove-addomains.pl will remove ad domains from the malware list
 # leaving us with /tmp/ad_domains_removed_from_malware.txt
 /usr/local/bin/remove-addomains.pl
 
+# build the ad list
 #grep -vf /tmp/ad-domain-dupes.txt /tmp/ad.domains | sed 's/[ \t]*$//g' | sed 's/$/" { type master; notify no; check-names ignore; file "masters\/adserver.zone"; };/g' | sed 's/^/zone "/g' > ${DEST}/ad_block.txt
 cat /tmp/ad.domains | sort -u | sed 's/[ \t]*$//g' | sed 's/$/" { type master; notify no; check-names ignore; file "masters\/adserver.zone"; };/g' | sed 's/^/zone "/g' > ${DEST}/ad_block.txt
 

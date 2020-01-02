@@ -198,11 +198,11 @@ then
     ls -rtl /tmp/temp*file
     # this removing any trailing dots sed 's/[\.]*$//'
 fi
-grep -vf ${ALLOWED} /tmp/temp_ad_file | grep -v \# | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep ^zone | cut -d' ' -f2 | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' | awk ' !x[$0]++' > /tmp/ad.domains
-grep -vf ${ALLOWED} /tmp/temp_malware_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v \# | awk '{ print $1 }' | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware.domains
-grep -vf ${ALLOWED} /tmp/temp_zeus_file | grep -v '#' | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v '^$' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/zeus.domains
-grep -vf ${ALLOWED} /tmp/temp_malware2_file | grep 127.0.0.1 | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v localhost | cut -d' ' -f3 | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware2.domains
-grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sed 's/^.*esomniture.com/esomniture.com/g' | awk ' !x[$0]++' | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/justdomains.domains
+grep -vf ${ALLOWED} /tmp/temp_ad_file | grep -v \# | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep ^zone | cut -d' ' -f2 | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[[:digit:]]\+\.//g' | sed 's/[\.]*$//g' | awk ' !x[$0]++' > /tmp/ad.domains
+grep -vf ${ALLOWED} /tmp/temp_malware_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v \# | awk '{ print $1 }' | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[[:digit:]]\+\.//g' | sed 's/[\.]*$//g' > /tmp/malware.domains
+grep -vf ${ALLOWED} /tmp/temp_zeus_file | grep -v '#' | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v '^$' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[[:digit:]]\+\.//g' | sed 's/[\.]*$//g' > /tmp/zeus.domains
+grep -vf ${ALLOWED} /tmp/temp_malware2_file | grep 127.0.0.1 | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v localhost | cut -d' ' -f3 | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[[:digit:]]\+\.//g' | sed 's/[\.]*$//g' > /tmp/malware2.domains
+grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[[:digit:]]\+\.//g' | sed 's/[[:digit:]]\+\.//g' | sed 's/^.*esomniture.com/esomniture.com/g' | sed 's/^.*\.ziyu.net/ziyu.net/g' | sed 's/^track\.msadcenter\+\.//g' | awk ' !x[$0]++' | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/justdomains.domains
 grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep -v \# | grep -v edgekey | grep -v akadns | grep -v edgesuite | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sed 's/^.*esomniture.com/esomniture.com/g' | awk ' !x[$0]++' | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/stevenblack.domains
 
 if [ $biglists -gt 0 ]
@@ -277,8 +277,18 @@ cat /tmp/pihole_t.$$ | sed 's/"//g' | awk -F . 'NF>4' | awk -F . '{ print $(NF-2
 grep -vf /tmp/shorten.domains /tmp/pihole_t.$$ > /tmp/pihole.$$
 cat /tmp/shorten.domains >> /tmp/pihole.$$
 
-# combine with ad domains and remove dupes
+# combine with ad domains, boil-down some obvious ad domains and remove dupes
 cat /tmp/pihole.$$ /tmp/ad.domains > /tmp/ad_domains_t.$$
+sed 's/^.*\.ziyu.net/ziyu.net/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.spylog.com/spylog.com/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.opentracker.net/opentracker.net/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.sitemeter.com/sitemeter.com/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.marketscore.com/marketscore.com/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.realtracker.com/realtracker.com/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.a8.net/a8.net/g' -i /tmp/ad_domains_t.$$
+sed 's/^.*\.moba8.net/moba8.net/g' -i /tmp/ad_domains_t.$$
+sed 's/^track\.msadcenter\+\.//g' -i /tmp/ad_domains_t.$$
+
 awk ' !x[$0]++' /tmp/ad_domains_t.$$ > /tmp/ad.domains
 
 # remove-addomains.pl will remove ad domains from the malware list

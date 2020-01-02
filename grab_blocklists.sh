@@ -135,7 +135,7 @@ echo 'malware2,http://www.malwaredomainlist.com/hostslist/hosts.txt' >> /tmp/the
 # add lists from pi-hole
 # ref: https://github.com/pi-hole/pi-hole/blob/master/automated%20install/basic-install.sh#L1200
 # ref: https://github.com/pi-hole/pi-hole/wiki/Customising-sources-for-ad-lists
-echo 'stevenblack,https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts' >> /tmp/thelist.$$ 
+echo 'stevenblack,http://sbc.io/hosts/alternates/gambling-porn/hosts' >> /tmp/thelist.$$ 
 echo 'justdomains,https://mirror1.malwaredomains.com/files/justdomains' >> /tmp/thelist.$$
 echo 'justdomains,https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt' >> /tmp/thelist.$$
 echo 'justdomains,https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt' >> /tmp/thelist.$$
@@ -202,8 +202,8 @@ grep -vf ${ALLOWED} /tmp/temp_ad_file | grep -v \# | sed y/ABCDEFGHIJKLMNOPQRSTU
 grep -vf ${ALLOWED} /tmp/temp_malware_file | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v \# | awk '{ print $1 }' | sed 's/"//g' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware.domains
 grep -vf ${ALLOWED} /tmp/temp_zeus_file | grep -v '#' | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v '^$' | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/zeus.domains
 grep -vf ${ALLOWED} /tmp/temp_malware2_file | grep 127.0.0.1 | sed y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ | grep -v localhost | cut -d' ' -f3 | sed 's/[ \t]*$//g' | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[\.]*$//g' > /tmp/malware2.domains
-grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/justdomains.domains
-grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep -v \# | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sort -u | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/stevenblack.domains
+grep -vf ${ALLOWED} /tmp/temp_justdomains_file | grep -v \# |  awk '{ print $NF }' | grep -v localhost | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sed 's/^.*esomniture.com/esomniture.com/g' | awk ' !x[$0]++' | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/justdomains.domains
+grep -vf ${ALLOWED} /tmp/temp_stevenblack_file | grep -v \# | grep 0.0.0.0 | awk '{ print $NF }' | grep -v 0.0.0.0 | sed 's/www\.//g' | sed 's/^www[1-9]\.//g' | sed 's/[[:digit:]]\+\.//g' | sed 's/^.*esomniture.com/esomniture.com/g' | awk ' !x[$0]++' | sed 's/[A-Z]/\L&/g' | awk -F . 'NF!=1' | sed '/^\s*$/d' > /tmp/stevenblack.domains
 
 if [ $biglists -gt 0 ]
 then
@@ -392,11 +392,11 @@ then
     rm -f /tmp/zeus-domain-dupes.txt
     rm -f /tmp/malware.$$
     rm -f /tmp/malware_t.$$
-    # remove temp pihole files
-    rm -f /tmp/pihole_t.$$
-    rm -f /tmp/pihole.$$
-    rm -f /tmp/shorten.domains
-    rm -f /tmp/ad_domains_t.$$
+    # remove temp pihole files                                                                                                                                                                     
+    rm -f /tmp/pihole_t.$$                                                                                                                                                                            
+    rm -f /tmp/pihole.$$                                                                                                                                                                              
+    rm -f /tmp/shorten.domains                                                                                                                                                                        
+    rm -f /tmp/ad_domains_t.$$ 
 fi
 
 
